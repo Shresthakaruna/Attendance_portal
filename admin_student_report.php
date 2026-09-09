@@ -40,9 +40,8 @@ if ($selected_student_id > 0) {
     if ($student_info) {
         // Fetch detailed attendance history with teacher info
         $stmt_att = $conn->prepare("
-            SELECT a.date, a.subject, a.status, u.username as teacher_name
+            SELECT a.date, a.subject, a.status
             FROM attendance a
-            LEFT JOIN users u ON a.teacher_id = u.user_id
             WHERE a.student_id = ?
             ORDER BY a.date DESC, a.subject ASC
         ");
