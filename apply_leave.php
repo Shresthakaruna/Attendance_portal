@@ -5,7 +5,6 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once 'backend/config.php';
 
 // Verify Student Session
-/////jhgjhghjghghjgjhghjghjghjgh
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role'] !== 'student') {
     header("Location: index.php?error=" . urlencode("Unauthorized access"));
     exit();

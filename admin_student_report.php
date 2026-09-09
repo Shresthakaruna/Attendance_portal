@@ -40,11 +40,10 @@ if ($selected_student_id > 0) {
     if ($student_info) {
         // Fetch detailed attendance history with teacher info
         $stmt_att = $conn->prepare("
-            SELECT a.date, a.subject, a.status, u.username as teacher_name
-            FROM attendance a
-            LEFT JOIN users u ON a.teacher_id = u.user_id
-            WHERE a.student_id = ?
-            ORDER BY a.date DESC, a.subject ASC
+            SELECT date, subject, status
+            FROM attendance
+            WHERE student_id = ?
+            ORDER BY date DESC, subject ASC
         ");
         $stmt_att->bind_param("i", $selected_student_id);
         $stmt_att->execute();
@@ -76,6 +75,24 @@ if ($selected_student_id > 0) {
   <meta charset="UTF-8">
   <title>Student Attendance Report - Admin</title>
   <link rel="stylesheet" href="css/style.css">
+  <style>
+    .btn-print {
+      background: #0d6efd;
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .btn-print:hover { background: #0b5ed7; }
+    @media print {
+      .btn-print, .navbar, .filter-form, .back-link { display: none !important; }
+      .dashboard-container { padding: 0; }
+      .report-card { display: none !important; }
+      body { background: #fff !important; }
+    }
+  </style>
 </head>
 <body>
   <?php include 'partials/navbar.php'; ?>
@@ -105,6 +122,7 @@ if ($selected_student_id > 0) {
       <!-- Student Stats Summary Card -->
       <div class="dashboard-card">
         <h3>📊 Summary for <?php echo htmlspecialchars($student_info['username']); ?></h3>
+        <button onclick="window.print()" class="btn-print" style="float:right; margin-top:-5px;">🖨️ Print Preview</button>
         
         <div class="stats-grid">
           <div class="stat-box">
@@ -137,7 +155,6 @@ if ($selected_student_id > 0) {
                 <th>Date</th>
                 <th>Subject</th>
                 <th>Status</th>
-                <th>Recorded By</th>
               </tr>
             </thead>
             <tbody>
@@ -154,7 +171,6 @@ if ($selected_student_id > 0) {
                       <span class="badge-late">Late</span>
                     <?php endif; ?>
                   </td>
-                  <td><?php echo htmlspecialchars($log['teacher_name'] ?? 'System'); ?></td>
                 </tr>
               <?php endforeach; ?>
             </tbody>
