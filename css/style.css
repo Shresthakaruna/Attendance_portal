@@ -564,6 +564,15 @@ button:hover, .btn-submit:hover { background-color: var(--color-primary-hover); 
 }
 .btn-report:hover { background-color: var(--color-info-hover); }
 
+.btn-print {
+  background-color: var(--color-secondary);
+  color: var(--color-white) !important;
+  font-size: 0.85em;
+  padding: 8px 16px;
+  white-space: nowrap;
+}
+.btn-print:hover { background-color: var(--color-secondary-hover); }
+
 .action-links {
   display: flex;
   gap: 10px;
@@ -639,6 +648,19 @@ th, td {
 
 .decorative-table tr:last-child td { border-bottom: none; }
 .decorative-table tbody tr:hover { background-color: var(--bg-subtle); }
+
+/* Alignment & spacing for table action buttons */
+.text-right { text-align: right; }
+.text-center { text-align: center; }
+.decorative-table td .btn-action,
+.decorative-table td .btn-report {
+  white-space: nowrap;
+  margin-right: 8px;
+}
+.decorative-table td .btn-action:last-child,
+.decorative-table td .btn-report:last-child {
+  margin-right: 0;
+}
 
 /* Optional column widths for report tables */
 .decorative-table.report-table th:nth-child(1), .decorative-table.report-table td:nth-child(1) { width: 22%; }
@@ -936,3 +958,95 @@ th, td {
   color: var(--text-muted);
 }
 .auth-footer p { margin: 0 0 8px 0; }
+
+/* ==========================================================================
+   11. PRINT PREVIEW & PRINT STYLES
+   ========================================================================== */
+.print-body {
+  background: var(--color-white);
+  padding: 30px;
+}
+
+.print-report {
+  max-width: 900px;
+  margin: 0 auto;
+  color: var(--text-dark);
+}
+
+.print-report-header {
+  border-bottom: 2px solid var(--color-primary);
+  padding-bottom: 12px;
+  margin-bottom: 20px;
+}
+
+.print-report-header h2 {
+  margin: 0 0 8px 0;
+}
+
+.print-report-header p {
+  margin: 2px 0;
+  color: var(--text-body);
+  font-size: 0.92rem;
+}
+
+.print-table {
+  page-break-inside: auto;
+}
+
+.print-table tr {
+  page-break-inside: avoid;
+  page-break-after: auto;
+}
+
+.print-table thead {
+  display: table-header-group;
+}
+
+@media print {
+  @page {
+    margin: 14mm;
+  }
+
+  .navbar,
+  .report-card,
+  .back-link,
+  .btn-print,
+  .header-actions {
+    display: none !important;
+  }
+
+  body {
+    background: var(--color-white);
+    padding: 0;
+  }
+
+  .dashboard-container {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .dashboard-card {
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    margin-bottom: 16px;
+  }
+
+  .stat-box {
+    break-inside: avoid;
+    border: 1px solid var(--border-color-strong);
+  }
+
+  table, .decorative-table {
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .badge-present,
+  .badge-absent,
+  .badge-late {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

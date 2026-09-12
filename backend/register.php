@@ -6,6 +6,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'];
     $role = $_POST['role'];
 
+    // Validate password minimum length
+    if (strlen($password) < 8) {
+        header("Location: ../register.php?error=" . urlencode("Password must be at least 8 characters long"));
+        exit();
+    }
+
     // Capture subject if role is teacher; otherwise set to NULL
     $subject = ($role === 'teacher' && !empty($_POST['subject'])) ? $_POST['subject'] : null;
 

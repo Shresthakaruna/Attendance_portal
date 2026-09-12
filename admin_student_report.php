@@ -19,6 +19,7 @@ $students_query = $conn->query("
 ");
 
 $selected_student_id = isset($_GET['student_id']) ? intval($_GET['student_id']) : 0;
+$print_mode = isset($_GET['print']) && $_GET['print'] == '1';
 
 $student_info = null;
 $attendance_logs = [];
@@ -69,6 +70,87 @@ if ($selected_student_id > 0) {
 }
 ?>
 
+<?php if ($print_mode && $selected_student_id > 0 && $student_info): ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Print Report - <?php echo htmlspecialchars($student_info['username']); ?></title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="print-body">
+  <div class="print-report">
+    <header class="print-report-header">
+      <h2>Student Attendance Report</h2>
+      <p><strong>Student:</strong> <?php echo htmlspecialchars($student_info['username']); ?> (ID: #<?php echo $selected_student_id; ?>)</p>
+      <p><strong>Generated on:</strong> <?php echo date('M d, Y h:i A'); ?></p>
+    </header>
+
+    <div class="stats-grid">
+      <div class="stat-box">
+        <h5>Attendance Rate</h5>
+        <div class="number text-primary-blue"><?php echo $overall_pct; ?>%</div>
+      </div>
+      <div class="stat-box">
+        <h5>Total Lectures</h5>
+        <div class="number"><?php echo $total_records; ?></div>
+      </div>
+      <div class="stat-box">
+        <h5>Present</h5>
+        <div class="number text-success-green"><?php echo $present_count; ?></div>
+      </div>
+      <div class="stat-box">
+        <h5>Absent</h5>
+        <div class="number text-danger-red"><?php echo $absent_count; ?></div>
+      </div>
+      <div class="stat-box">
+        <h5>Late</h5>
+        <div class="number text-warning-amber"><?php echo $late_count; ?></div>
+      </div>
+    </div>
+
+    <?php if ($total_records > 0): ?>
+      <table class="decorative-table report-table print-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Subject</th>
+            <th>Status</th>
+            <th>Recorded By</th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php foreach ($attendance_logs as $log): ?>
+            <tr>
+              <td><strong><?php echo date('M d, Y', strtotime($log['date'])); ?></strong></td>
+              <td><?php echo htmlspecialchars($log['subject']); ?></td>
+              <td>
+                <?php if ($log['status'] === 'Present'): ?>
+                  <span class="badge-present">Present</span>
+                <?php elseif ($log['status'] === 'Absent'): ?>
+                  <span class="badge-absent">Absent</span>
+                <?php else: ?>
+                  <span class="badge-late">Late</span>
+                <?php endif; ?>
+              </td>
+              <td><?php echo htmlspecialchars($log['teacher_name'] ?? 'System'); ?></td>
+            </tr>
+          <?php endforeach; ?>
+        </tbody>
+      </table>
+    <?php else: ?>
+      <p class="empty-state-text">No attendance records found for this student.</p>
+    <?php endif; ?>
+  </div>
+
+  <script>
+    window.onload = function () {
+      window.print();
+    };
+  </script>
+</body>
+</html>
+<?php else: ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -103,7 +185,11 @@ if ($selected_student_id > 0) {
     <?php if ($selected_student_id > 0 && $student_info): ?>
       <!-- Student Stats Summary Card -->
       <div class="dashboard-card">
-        <h3>📊 Summary for <?php echo htmlspecialchars($student_info['username']); ?></h3>
+        <div class="card-header">
+          <h3>📊 Summary for <?php echo htmlspecialchars($student_info['username']); ?></h3>
+          <a href="admin_student_report.php?student_id=<?php echo $selected_student_id; ?>&print=1"
+             target="_blank" rel="noopener" class="btn-action btn-print">🖨️ Print Preview</a>
+        </div>
         
         <div class="stats-grid">
           <div class="stat-box">
@@ -170,3 +256,4 @@ if ($selected_student_id > 0) {
   </div>
 </body>
 </html>
+<?php endif; ?>

@@ -50,7 +50,8 @@
         <input type="text" name="username" required>
 
         <label>Password</label>
-        <input type="password" name="password" id="password" required>
+        <input type="password" name="password" id="password" minlength="8" required>
+        <small style="color: #888;">Minimum 8 characters required</small>
         <div class="show-password-container">
           <input type="checkbox" id="togglePassword" onclick="togglePasswordVisibility()">
           <label for="togglePassword" class="checkbox-label">Show Password</label>

@@ -20,7 +20,7 @@ function nav_class($page, $current) {
     <div class="navbar-links" id="navLinks">
       <?php if ($nav_role === 'admin'): ?>
         <a href="admin_dashboard.php" class="<?php echo nav_class('admin_dashboard.php', $current_page); ?>">Dashboard</a>
-        <a href="admin_manage_users.php" class="<?php echo nav_class('admin_manage_users.php', $current_page); ?>">Manage Users</a>
+        <a href="admin_manage_users.php" class="<?php echo nav_class('admin_manage_users.php', $current_page); ?>">Users</a>
         <a href="admin_student_report.php" class="<?php echo nav_class('admin_student_report.php', $current_page); ?>">Student Reports</a>
       <?php elseif ($nav_role === 'teacher'): ?>
         <a href="teacher_dashboard.php" class="<?php echo nav_class('teacher_dashboard.php', $current_page); ?>">Dashboard</a>

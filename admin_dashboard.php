@@ -10,10 +10,6 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role
     exit();
 }
 
-// --- SEARCH & FILTER PARAMETERS ---
-$search_term = isset($_GET['search']) ? trim($_GET['search']) : '';
-$role_filter = isset($_GET['role']) ? trim($_GET['role']) : '';
-
 // --- DATA RETRIEVAL (Prepared Statements) ---
 
 // 1. Overview Metrics (KPI Cards)
@@ -27,36 +23,7 @@ $pending_stmt = $conn->prepare("SELECT * FROM users WHERE status = 'pending' ORD
 $pending_stmt->execute();
 $pending_result = $pending_stmt->get_result();
 
-// 3. Merged Search & Filter Fetch for Approved Users (Teachers & Students)
-$users_sql = "SELECT * FROM users WHERE status = 'approved' AND role IN ('teacher', 'student')";
-$params = [];
-$types = "";
-
-if (!empty($search_term)) {
-    $users_sql .= " AND (username LIKE ? OR user_id LIKE ? OR subject LIKE ?)";
-    $like_term = "%" . $search_term . "%";
-    $params[] = $like_term;
-    $params[] = $like_term;
-    $params[] = $like_term;
-    $types .= "sss";
-}
-
-if (!empty($role_filter) && in_array($role_filter, ['teacher', 'student'])) {
-    $users_sql .= " AND role = ?";
-    $params[] = $role_filter;
-    $types .= "s";
-}
-
-$users_sql .= " ORDER BY username ASC";
-
-$users_stmt = $conn->prepare($users_sql);
-if (!empty($params)) {
-    $users_stmt->bind_param($types, ...$params);
-}
-$users_stmt->execute();
-$users_result = $users_stmt->get_result();
-
-// 4. Fetch Student Leave Requests
+// 3. Fetch Student Leave Requests
 $leave_stmt = $conn->prepare("
     SELECT l.*, u.username 
     FROM leave_application l 
@@ -230,65 +197,35 @@ $leave_result = $leave_stmt->get_result();
       </div>
     </section>
 
-    <!-- SECTION 3: MERGED USERS DIRECTORY (TEACHERS & STUDENTS WITH SEARCH/FILTER) -->
+    <!-- SECTION 3: USERS MANAGEMENT -->
     <section class="dashboard-card">
-      <div class="card-header flex-between" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-        <h3>Approved Users Directory</h3>
-        
-        <!-- SEARCH & FILTER FORM -->
-        <form method="GET" action="admin_dashboard.php" style="display: flex; gap: 8px; align-items: center;">
-          <input type="text" name="search" placeholder="Search name, ID, or subject..." 
-                 value="<?php echo htmlspecialchars($search_term); ?>" 
-                 style="padding: 6px 12px; border: 1px solid #ccc; border-radius: 4px;">
-                 
-          <select name="role" style="padding: 6px 12px; border: 1px solid #ccc; border-radius: 4px;">
-            <option value="">All Roles</option>
-            <option value="teacher" <?php echo $role_filter === 'teacher' ? 'selected' : ''; ?>>Teacher</option>
-            <option value="student" <?php echo $role_filter === 'student' ? 'selected' : ''; ?>>Student</option>
-          </select>
-          
-          <button type="submit" class="btn-action btn-approve" style="cursor: pointer; border: none;">Filter</button>
-          
-          <?php if (!empty($search_term) || !empty($role_filter)): ?>
-            <a href="admin_dashboard.php" class="btn-action btn-reject" style="text-decoration: none;">Reset</a>
-          <?php endif; ?>
-        </form>
+      <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <h3>Users</h3>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <a href="admin_manage_users.php" class="btn-action btn-approve" style="text-decoration: none; padding: 8px 16px;">Go to Users</a>
+        </div>
       </div>
-
       <div class="table-responsive">
         <table class="decorative-table">
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Username</th>
-              <th>Role</th>
-              <th>Subject</th>
-              <th class="text-right">Actions</th>
+              <th>Metric</th>
+              <th>Count</th>
             </tr>
           </thead>
           <tbody>
-            <?php if ($users_result && $users_result->num_rows > 0): ?>
-              <?php while ($user = $users_result->fetch_assoc()): ?>
-                <tr>
-                  <td>#<?php echo $user['user_id']; ?></td>
-                  <td><strong><?php echo htmlspecialchars($user['username']); ?></strong></td>
-                  <td><span class="badge-role"><?php echo ucfirst($user['role']); ?></span></td>
-                  <td><?php echo !empty($user['subject']) ? htmlspecialchars($user['subject']) : '—'; ?></td>
-                  <td class="text-right">
-                    <?php if ($user['role'] === 'student'): ?>
-                      <a href="admin_student_report.php?student_id=<?php echo $user['user_id']; ?>" class="btn-action btn-report">Report</a>
-                    <?php endif; ?>
-                    <a href="backend/approve_user.php?id=<?php echo $user['user_id']; ?>&action=delete" 
-                       onclick="return confirm('Permanently delete this user account?');" 
-                       class="btn-action btn-danger">Delete</a>
-                  </td>
-                </tr>
-              <?php endwhile; ?>
-            <?php else: ?>
-              <tr>
-                <td colspan="5" class="empty-state">No matching approved users found.</td>
-              </tr>
-            <?php endif; ?>
+            <tr>
+              <td><strong>Active Teachers</strong></td>
+              <td><span class="badge-role">Approved</span> <?php echo $total_teachers; ?></td>
+            </tr>
+            <tr>
+              <td><strong>Active Students</strong></td>
+              <td><span class="badge-role">Approved</span> <?php echo $total_students; ?></td>
+            </tr>
+            <tr>
+              <td><strong>Pending Accounts</strong></td>
+              <td><span class="badge-role">Pending</span> <?php echo $total_pending; ?></td>
+            </tr>
           </tbody>
         </table>
       </div>
