@@ -19,6 +19,29 @@
         subjectSelect.value = ""; // Clear subject selection for non-teachers
       }
     }
+
+    function validatePassword(password) {
+      const errors = [];
+      if (password.length < 8) errors.push("at least 8 characters");
+      if (password.length > 12) errors.push("at most 12 characters");
+      if (!/[0-9]/.test(password)) errors.push("at least one digit");
+      if (!/[A-Z]/.test(password)) errors.push("at least one capital letter");
+      if (!/[a-z]/.test(password)) errors.push("at least one small letter");
+      if (!/[^a-zA-Z0-9]/.test(password)) errors.push("at least one special character");
+      return errors;
+    }
+
+    function validateForm() {
+      const password = document.getElementById("password").value;
+      const errors = validatePassword(password);
+      
+      if (errors.length > 0) {
+        alert("Password requirements not met:\n" + errors.join("\n"));
+        return false;
+      }
+      return true;
+    }
+
   </script>
   <style>
     #togglePassword {
@@ -45,13 +68,13 @@
       }
       ?>
 
-      <form action="backend/register.php" method="POST">
+      <form action="backend/register.php" method="POST" onsubmit="return validateForm()">
         <label>Username</label>
         <input type="text" name="username" required>
 
         <label>Password</label>
-        <input type="password" name="password" id="password" minlength="8" required>
-        <small style="color: #888;">Minimum 8 characters required</small>
+        <input type="password" name="password" id="password" required>
+        <small style="color: #888;"></small>
         <div class="show-password-container">
           <input type="checkbox" id="togglePassword" onclick="togglePasswordVisibility()">
           <label for="togglePassword" class="checkbox-label">Show Password</label>
@@ -96,6 +119,19 @@
         passwordInput.type = "password";
       }
     }
+
+    document.getElementById("password").addEventListener("input", function() {
+      const errors = validatePassword(this.value);
+      const hint = document.querySelector("small");
+      
+      if (errors.length > 0) {
+        hint.style.color = "#e74c3c";
+        hint.innerHTML = "Password must: " + errors.join(", ");
+      } else {
+        hint.style.color = "#27ae60";
+        hint.innerHTML = "Password meets all requirements";
+      }
+    });
   </script>
 </body>
 

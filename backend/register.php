@@ -6,9 +6,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'];
     $role = $_POST['role'];
 
-    // Validate password minimum length
+    // Validate password requirements
+    $errors = [];
+    
     if (strlen($password) < 8) {
-        header("Location: ../register.php?error=" . urlencode("Password must be at least 8 characters long"));
+        $errors[] = "Password must be at least 8 characters long";
+    }
+    if (strlen($password) > 12) {
+        $errors[] = "Password must be at most 12 characters long";
+    }
+    if (!preg_match('/[0-9]/', $password)) {
+        $errors[] = "Password must contain at least one digit";
+    }
+    if (!preg_match('/[A-Z]/', $password)) {
+        $errors[] = "Password must contain at least one capital letter";
+    }
+    if (!preg_match('/[a-z]/', $password)) {
+        $errors[] = "Password must contain at least one small letter";
+    }
+    if (!preg_match('/[^a-zA-Z0-9]/', $password)) {
+        $errors[] = "Password must contain at least one special character";
+    }
+    
+    if (!empty($errors)) {
+        header("Location: ../register.php?error=" . urlencode(implode(" ", $errors)));
         exit();
     }
 
