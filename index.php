@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <title>NCCS - Smart Attendance Portal Login</title>
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css?v=7">
   <style>
     #togglePassword {
       display: inline;

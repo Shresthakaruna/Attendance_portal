@@ -32,11 +32,18 @@ function nav_class($page, $current) {
     </div>
 
     <div class="navbar-user">
-      <span class="navbar-username">
-        <span class="username-text"><?php echo htmlspecialchars($nav_username); ?></span>
-        <span class="role-chip"><?php echo htmlspecialchars(ucfirst($nav_role)); ?></span>
-      </span>
-      <a href="backend/logout.php" class="btn-logout-nav">Logout</a>
+      <div class="user-menu" id="userMenu">
+        <button type="button" class="user-menu-toggle" id="userMenuToggle" aria-expanded="false" aria-haspopup="true">
+          <span class="role-chip"><?php echo htmlspecialchars(ucfirst($nav_role)); ?></span>
+          <span class="user-menu-caret" aria-hidden="true">▾</span>
+        </button>
+        <div class="user-menu-dropdown" id="userMenuDropdown">
+          <div class="user-menu-header">
+            <span class="user-menu-name"><?php echo htmlspecialchars($nav_username); ?></span>
+          </div>
+          <a href="backend/logout.php" class="user-menu-logout">Logout</a>
+        </div>
+      </div>
     </div>
   </div>
 </nav>
@@ -49,6 +56,34 @@ function nav_class($page, $current) {
         var isOpen = links.classList.toggle('is-open');
         toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
       });
+    }
+
+    var userMenu = document.getElementById('userMenu');
+    var userToggle = document.getElementById('userMenuToggle');
+    var userDropdown = document.getElementById('userMenuDropdown');
+    if (userMenu && userToggle && userDropdown) {
+      userToggle.addEventListener('click', function (e) {
+        e.stopPropagation();
+        toggleUserMenu();
+      });
+      document.addEventListener('click', function (e) {
+        if (!userMenu.contains(e.target)) {
+          closeUserMenu();
+        }
+      });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+          closeUserMenu();
+        }
+      });
+    }
+    function closeUserMenu() {
+      if (userDropdown) userDropdown.classList.remove('is-open');
+      if (userToggle) userToggle.setAttribute('aria-expanded', 'false');
+    }
+    function toggleUserMenu() {
+      var isOpen = userDropdown.classList.toggle('is-open');
+      userToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
     }
   })();
 </script>

@@ -55,7 +55,7 @@ $records_stmt->close();
 <head>
     <meta charset="UTF-8">
     <title>My Attendance Report - Smart Attendance</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=7">
 </head>
 <body>
     <?php include 'partials/navbar.php'; ?>

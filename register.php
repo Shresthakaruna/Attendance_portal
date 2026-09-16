@@ -3,7 +3,7 @@
 
 <head>
   <title>Smart Attendance Portal - Register</title>
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css?v=7">
   <script>
     function toggleSubjectField() {
       var roleSelect = document.getElementById("role");

@@ -98,7 +98,7 @@ $students = $student_stmt->get_result();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Teacher Dashboard - Smart Attendance</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=7">
 </head>
 <body class="teacher-dashboard-body">
     <?php include 'partials/navbar.php'; ?>
@@ -171,6 +171,9 @@ $students = $student_stmt->get_result();
         <!-- Mark Daily Attendance Section -->
         <div class="dashboard-card attendance-card">
             <h3>Mark Daily Attendance</h3>
+            <div class="info-note">
+                <strong>Note:</strong> Students entering class after 10 minutes are marked as <strong>Late</strong>.
+            </div>
 
             <?php if ($is_already_submitted): ?>
                 <!-- Overall Class Attendance Summary Box -->
