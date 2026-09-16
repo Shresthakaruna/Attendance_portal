@@ -15,6 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $reason     = trim($_POST['reason'] ?? '');
 
     $today = date('Y-m-d');
+    $max_date = date('Y-m-d', strtotime('+1 month'));
 
     // Rule 1: Empty Fields Check
     if (empty($start_date) || empty($end_date) || empty($reason)) {
@@ -25,6 +26,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Rule 2: Start Date Cannot Be in the Past
     if ($start_date < $today) {
         header("Location: ../student_leave.php?error=" . urlencode("Start date cannot be in the past."));
+        exit();
+    }
+
+    // Rule 2b: Start Date Cannot Be More Than 1 Month in the Future
+    if ($start_date > $max_date) {
+        header("Location: ../student_leave.php?error=" . urlencode("Leave must be applied within one month from today."));
         exit();
     }
 

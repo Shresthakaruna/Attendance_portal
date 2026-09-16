@@ -11,6 +11,8 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'student') {
 }
 
 $student_id = $_SESSION['user_id'];
+$today = date('Y-m-d');
+$max_date = date('Y-m-d', strtotime('+1 month'));
 
 // 1. Fetch Student Profile Details
 $user_stmt = $conn->prepare("SELECT user_id, username, role, status FROM users WHERE user_id = ?");
@@ -72,7 +74,7 @@ $leave_stmt->close();
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Student Dashboard - Attendance Portal</title>
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css?v=7">
   
   <!-- Include Chart.js Library -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -197,15 +199,15 @@ $leave_stmt->close();
     <!-- SECTION 3: APPLY FOR LEAVE FORM -->
     <div class="dashboard-card leave-card">
       <h3>Apply for Leave</h3>
-      <form action="backend/submit_leave.php" method="POST" class="leave-form">
+      <form action="backend/submit_leave.php" method="POST" class="leave-form" id="dashboardLeaveForm" onsubmit="return validateDashboardLeaveForm()">
         <label for="start_date">Start Date:</label>
-        <input type="date" id="start_date" name="start_date" required>
+        <input type="date" id="start_date" name="start_date" min="<?php echo $today; ?>" max="<?php echo $max_date; ?>" required>
 
         <label for="end_date">End Date:</label>
-        <input type="date" id="end_date" name="end_date" required>
+        <input type="date" id="end_date" name="end_date" min="<?php echo $today; ?>" max="<?php echo $max_date; ?>" required>
 
         <label for="reason">Reason for Leave:</label>
-        <textarea id="reason" name="reason" rows="4" placeholder="Enter reason for leave..." required></textarea>
+        <textarea id="reason" name="reason" rows="4" minlength="10" placeholder="Enter reason for leave (minimum 10 characters)..." required></textarea>
 
         <button type="submit" class="btn-submit">Submit Application</button>
       </form>
@@ -255,6 +257,43 @@ $leave_stmt->close();
     </div>
 
   </div>
+
+  <!-- JAVASCRIPT FOR LEAVE FORM VALIDATION -->
+  <script>
+    function validateDashboardLeaveForm() {
+      const startDate = document.getElementById('start_date').value;
+      const endDate = document.getElementById('end_date').value;
+      const reason = document.getElementById('reason').value.trim();
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const maxDate = new Date(today);
+      maxDate.setMonth(maxDate.getMonth() + 1);
+
+      const startObj = new Date(startDate);
+      if (startObj < today) {
+        alert("Start date cannot be in the past.");
+        return false;
+      }
+
+      if (startObj > maxDate) {
+        alert("Leave must be applied within one month from today.");
+        return false;
+      }
+
+      if (new Date(endDate) < startObj) {
+        alert("End date cannot be earlier than the start date.");
+        return false;
+      }
+
+      if (reason.length < 10) {
+        alert("Please provide a reason with at least 10 characters.");
+        return false;
+      }
+
+      return true;
+    }
+  </script>
 
   <!-- JAVASCRIPT FOR DISK / DONUT CHART -->
   <script>

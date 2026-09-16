@@ -12,6 +12,7 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role
 
 $student_id = $_SESSION['user_id'];
 $today = date('Y-m-d');
+$max_date = date('Y-m-d', strtotime('+1 month'));
 
 // --- PROCESS LEAVE SUBMISSION (POST REQUEST) ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -28,6 +29,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // 2. Check if Start Date is in the Past
     if ($start_date < $today) {
         header("Location: student_dashboard.php?error=" . urlencode("Start date cannot be in the past."));
+        exit();
+    }
+
+    // 2b. Check if Start Date is more than 1 month in the Future
+    if ($start_date > $max_date) {
+        header("Location: apply_leave.php?error=" . urlencode("Leave must be applied within one month from today."));
         exit();
     }
 
@@ -82,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Apply for Leave | Student Portal</title>
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css?v=7">
 </head>
 <body class="dashboard-body">
 
@@ -111,12 +118,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           
           <div class="form-group" style="margin-bottom: 15px;">
             <label for="start_date" style="display: block; font-weight: bold; margin-bottom: 5px;">Start Date:</label>
-            <input type="date" id="start_date" name="start_date" min="<?php echo $today; ?>" required style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ccc;">
+            <input type="date" id="start_date" name="start_date" min="<?php echo $today; ?>" max="<?php echo $max_date; ?>" required style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ccc;">
           </div>
 
           <div class="form-group" style="margin-bottom: 15px;">
             <label for="end_date" style="display: block; font-weight: bold; margin-bottom: 5px;">End Date:</label>
-            <input type="date" id="end_date" name="end_date" min="<?php echo $today; ?>" required style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ccc;">
+            <input type="date" id="end_date" name="end_date" min="<?php echo $today; ?>" max="<?php echo $max_date; ?>" required style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ccc;">
           </div>
 
           <div class="form-group" style="margin-bottom: 20px;">
@@ -156,7 +163,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       const endDate = endDateInput.value;
       const reason = document.getElementById('reason').value.trim();
 
-      if (new Date(endDate) < new Date(startDate)) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const maxDate = new Date(today);
+      maxDate.setMonth(maxDate.getMonth() + 1);
+
+      const startObj = new Date(startDate);
+      if (startObj < today) {
+        alert("Start date cannot be in the past.");
+        return false;
+      }
+
+      if (startObj > maxDate) {
+        alert("Leave must be applied within one month from today.");
+        return false;
+      }
+
+      if (new Date(endDate) < startObj) {
         alert("End date cannot be earlier than the start date.");
         return false;
       }
