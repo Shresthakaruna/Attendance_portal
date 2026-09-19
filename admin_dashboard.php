@@ -147,13 +147,17 @@ $leave_result = $leave_stmt->get_result();
     <section class="dashboard-card">
       <div class="card-header">
         <h3>Student Leave Applications</h3>
-        <div style="display: flex; align-items: center; gap: 10px;">
-          <span class="count-badge"><?php echo $leave_result->num_rows; ?> Requests</span>
-          <button type="button" id="toggleLeaveTableBtn" class="btn-action btn-approve" style="cursor: pointer; border: none; padding: 6px 12px;" onclick="toggleLeaveTable()">Show Requests ▾</button>
-        </div>
+        <span class="count-badge"><?php echo $leave_result->num_rows; ?> Requests</span>
       </div>
-      <div id="leaveRequestsBody" style="display: none;">
-        <div class="table-responsive">
+      <div class="leave-filters" style="padding: 0 16px 12px; display: flex; gap: 20px; align-items: center;">
+        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+          <input type="checkbox" id="showExpired"> <span>Show Expired</span>
+        </label>
+        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+          <input type="checkbox" id="showProcessed"> <span>Show Processed</span>
+        </label>
+      </div>
+      <div class="table-responsive">
         <table class="decorative-table">
           <thead>
             <tr>
@@ -165,11 +169,15 @@ $leave_result = $leave_stmt->get_result();
               <th class="text-right">Actions</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody id="leaveTableBody">
             <?php if ($leave_result && $leave_result->num_rows > 0): ?>
               <?php while ($leave = $leave_result->fetch_assoc()): ?>
-                <tr>
-                  <td><strong>#<?php echo $leave['student_id']; ?></strong></td>
+                <?php
+                $is_expired = ($leave['end_date'] < $today);
+                $leave_class = $is_expired ? 'expired' : (($leave['status'] !== 'Pending') ? 'processed' : 'pending');
+                ?>
+                <tr data-status="<?php echo $leave_class; ?>">
+                  <td><strong>#<?php echo $leave['leave_id']; ?></strong></td>
                   <td><strong><?php echo htmlspecialchars($leave['username']); ?></strong></td>
                   <td>
                     <?php echo date('M d', strtotime($leave['start_date'])); ?> - 
@@ -179,7 +187,6 @@ $leave_result = $leave_stmt->get_result();
                   <td>
                     <?php
                     $status = $leave['status'];
-                    $is_expired = ($leave['end_date'] < $today);
 
                     if ($is_expired) {
                         $display_status = 'Expired';
@@ -214,7 +221,6 @@ $leave_result = $leave_stmt->get_result();
             <?php endif; ?>
           </tbody>
         </table>
-      </div>
       </div>
     </section>
 
@@ -255,13 +261,20 @@ $leave_result = $leave_stmt->get_result();
   </div>
 
   <script>
-    function toggleLeaveTable() {
-      const body = document.getElementById('leaveRequestsBody');
-      const btn = document.getElementById('toggleLeaveTableBtn');
-      const isHidden = body.style.display === 'none';
-      body.style.display = isHidden ? 'block' : 'none';
-      btn.textContent = isHidden ? 'Hide Requests ▴' : 'Show Requests ▾';
+    function applyLeaveFilters() {
+      const showExpired = document.getElementById('showExpired').checked;
+      const showProcessed = document.getElementById('showProcessed').checked;
+      document.querySelectorAll('#leaveTableBody tr').forEach(row => {
+        if (!row.dataset.status) return;
+        const hidden = (row.dataset.status === 'expired' && !showExpired) ||
+                       (row.dataset.status === 'processed' && !showProcessed);
+        row.style.display = hidden ? 'none' : '';
+      });
     }
+
+    document.getElementById('showExpired').addEventListener('change', applyLeaveFilters);
+    document.getElementById('showProcessed').addEventListener('change', applyLeaveFilters);
+    applyLeaveFilters();
   </script>
 
 </body>

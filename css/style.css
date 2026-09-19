@@ -25,11 +25,12 @@
   --color-orange: #ea580c;
 
   /* Backgrounds & Neutrals */
-  --bg-page: #f4f6fb;
+  --bg-page: #e2e8f0;
   --bg-card: #ffffff;
   --bg-subtle: #f8fafc;
   --border-color: #e2e8f0;
   --border-color-strong: #cbd5e1;
+  --border-color-table: #94a3b8;
   --text-dark: #0f172a;
   --text-body: #334155;
   --text-muted: #64748b;
@@ -41,8 +42,8 @@
   --border-radius-lg: 16px;
   --border-radius-pill: 999px;
   --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.06);
-  --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
-  --shadow-lg: 0 12px 28px rgba(15, 23, 42, 0.12);
+  --shadow-md: 0 6px 18px rgba(15, 23, 42, 0.12), 0 2px 6px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 16px 32px rgba(15, 23, 42, 0.18), 0 4px 10px rgba(15, 23, 42, 0.10);
   --navbar-height: 64px;
 }
 
@@ -124,9 +125,9 @@ h1, h2, h3, h4, h5 {
 
 .dashboard-card {
   background: var(--bg-card);
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border-color-strong);
   border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-lg);
   padding: 24px;
   margin-bottom: 24px;
   width: 100%;
@@ -695,7 +696,7 @@ table {
 }
 
 th, td {
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border-color-table);
   padding: 11px 14px;
   text-align: left;
 }
@@ -712,7 +713,7 @@ th, td {
   border-spacing: 0;
   border-radius: var(--border-radius-md);
   overflow: visible;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border-color-table);
   table-layout: fixed;
 }
 
@@ -723,11 +724,11 @@ th, td {
   text-transform: uppercase;
   font-size: 0.75rem;
   letter-spacing: 0.05em;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color-table);
 }
 
 .decorative-table td {
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color-table);
   vertical-align: middle;
   font-size: 0.93rem;
 }
@@ -991,8 +992,8 @@ th, td {
   background-color: var(--bg-card);
   border-radius: var(--border-radius-lg);
   padding: 18px 20px;
-  border: 1px solid var(--border-color);
-  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color-strong);
+  box-shadow: var(--shadow-lg);
   display: flex;
   flex-direction: column;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -1000,7 +1001,7 @@ th, td {
 
 .metric-card:hover {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-lg);
 }
 
 .metric-label {
@@ -1044,7 +1045,7 @@ th, td {
   width: 100%;
   max-width: 400px;
   background: var(--bg-card);
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border-color-strong);
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-lg);
   padding: 36px 32px;

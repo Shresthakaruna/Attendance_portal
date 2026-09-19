@@ -238,10 +238,18 @@ $leave_stmt->close();
                   <td>
                     <?php 
                       $status = $row['status'];
-                      $status_class = ($status === 'Approved') ? 'badge-present' : (($status === 'Rejected') ? 'badge-absent' : 'badge-late');
+                      $is_expired = ($row['end_date'] < $today);
+
+                      if ($is_expired) {
+                          $display_status = 'Expired';
+                          $status_class = 'badge-expired';
+                      } else {
+                          $display_status = $status;
+                          $status_class = ($status === 'Approved') ? 'badge-present' : (($status === 'Rejected') ? 'badge-absent' : 'badge-late');
+                      }
                     ?>
                     <span class="<?php echo $status_class; ?>">
-                      <?php echo htmlspecialchars($status); ?>
+                      <?php echo htmlspecialchars($display_status); ?>
                     </span>
                   </td>
                 </tr>
