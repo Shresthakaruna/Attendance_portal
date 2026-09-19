@@ -76,7 +76,7 @@ if ($selected_student_id > 0) {
 <head>
   <meta charset="UTF-8">
   <title>Print Report - <?php echo htmlspecialchars($student_info['username']); ?></title>
-  <link rel="stylesheet" href="css/style.css?v=7">
+  <link rel="stylesheet" href="css/style.css?v=13">
 </head>
 <body class="print-body">
   <div class="print-report">
@@ -156,7 +156,7 @@ if ($selected_student_id > 0) {
 <head>
   <meta charset="UTF-8">
   <title>Student Attendance Report - Admin</title>
-  <link rel="stylesheet" href="css/style.css?v=7">
+  <link rel="stylesheet" href="css/style.css?v=13">
 </head>
 <body>
   <?php include 'partials/navbar.php'; ?>

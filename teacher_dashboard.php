@@ -98,7 +98,7 @@ $students = $student_stmt->get_result();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Teacher Dashboard - Smart Attendance</title>
-    <link rel="stylesheet" href="css/style.css?v=7">
+    <link rel="stylesheet" href="css/style.css?v=13">
 </head>
 <body class="teacher-dashboard-body">
     <?php include 'partials/navbar.php'; ?>
@@ -198,7 +198,7 @@ $students = $student_stmt->get_result();
                             </tr>
                         </thead>
                         <tbody>
-                            <?php while ($student = $students->fetch_assoc()): ?>
+                            <?php $serial = 1; while ($student = $students->fetch_assoc()): ?>
                                 <?php 
                                     $is_on_leave = in_array($student['user_id'], $on_leave_ids);
                                     
@@ -209,7 +209,7 @@ $students = $student_stmt->get_result();
                                     }
                                 ?>
                                 <tr>
-                                    <td><strong>#<?php echo $student['user_id']; ?></strong></td>
+                                    <td><strong><?php echo $serial++; ?></strong></td>
                                     <td>
                                         <strong><?php echo htmlspecialchars($student['username']); ?></strong>
                                         <?php if ($is_on_leave): ?>
