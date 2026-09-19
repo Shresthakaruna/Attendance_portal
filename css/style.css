@@ -635,8 +635,8 @@ button:hover, .btn-submit:hover { background-color: var(--color-primary-hover); 
 
 .btn-approve { background-color: var(--color-success); color: var(--color-white); }
 .btn-approve:hover { background-color: #15803d; }
-.btn-reject { background-color: var(--color-orange); color: var(--color-white); }
-.btn-reject:hover { background-color: #c2410c; }
+.btn-reject { background-color: var(--color-danger); color: var(--color-white); }
+.btn-reject:hover { background-color: #b91c1c; }
 .btn-danger { background-color: var(--color-danger); color: var(--color-white); }
 .btn-danger:hover { background-color: #b91c1c; }
 .btn-primary { background-color: var(--color-primary); color: var(--color-white); }
@@ -711,7 +711,7 @@ th, td {
   border-collapse: separate;
   border-spacing: 0;
   border-radius: var(--border-radius-md);
-  overflow: hidden;
+  overflow: visible;
   border: 1px solid var(--border-color);
   table-layout: fixed;
 }
@@ -746,6 +746,37 @@ th, td {
 .decorative-table td .btn-action:last-child,
 .decorative-table td .btn-report:last-child {
   margin-right: 0;
+}
+
+/* Vertical stack for Approve/Reject action buttons */
+.action-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 8px;
+  width: 100%;
+}
+
+.action-stack .btn-action {
+  width: 100%;
+  margin-right: 0;
+}
+
+/* Compact variant: fit labels, equal width, no stretch, right-aligned */
+.action-stack.compact {
+  align-items: flex-end;
+}
+
+.action-stack.compact .btn-action {
+  width: 110px;
+  padding: 7px 14px;
+  margin-right: 0;
+}
+
+/* Hidden support forms referenced via the HTML5 form attribute */
+.manage-form-hidden {
+  display: none;
 }
 
 /* Optional column widths for report tables */
@@ -800,6 +831,7 @@ th, td {
 .badge-approved, .badge-present { background-color: var(--color-success-light); color: var(--color-success-text); }
 .badge-absent { background-color: var(--color-danger-light); color: var(--color-danger-text); }
 .badge-late { background-color: var(--color-warning-light); color: var(--color-warning-text); }
+.badge-expired { background-color: var(--bg-subtle); color: var(--text-muted); border: 1px solid var(--border-color); }
 
 /* Text Status Indicators */
 .status-approved { color: var(--color-success); font-weight: 700; }

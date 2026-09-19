@@ -66,7 +66,7 @@ $result = $conn->query($query);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Users - Admin Panel</title>
-    <link rel="stylesheet" href="css/style.css?v=7">
+    <link rel="stylesheet" href="css/style.css?v=13">
 </head>
 <body>
     <?php include 'partials/navbar.php'; ?>
@@ -163,10 +163,12 @@ $result = $conn->query($query);
                                     <td>#<?php echo $serial++; ?></td>
                                     <td><strong><?php echo htmlspecialchars($user['username']); ?></strong></td>
                                     <td class="text-right">
-                                        <a href="admin_student_report.php?student_id=<?php echo $user['user_id']; ?>" class="btn-action btn-report">Report</a>
-                                        <a href="backend/approve_user.php?id=<?php echo $user['user_id']; ?>&action=delete" 
-                                           onclick="return confirm('Permanently delete this student account?');" 
-                                           class="btn-action btn-danger">Delete</a>
+                                        <div class="action-stack compact">
+                                            <a href="admin_student_report.php?student_id=<?php echo $user['user_id']; ?>" class="btn-action btn-report">Report</a>
+                                            <a href="backend/approve_user.php?id=<?php echo $user['user_id']; ?>&action=delete" 
+                                               onclick="return confirm('Permanently delete this student account?');" 
+                                               class="btn-action btn-danger">Delete</a>
+                                        </div>
                                     </td>
                                 </tr>
                             <?php endwhile; ?>
@@ -208,40 +210,46 @@ $result = $conn->query($query);
                             <tr>
                                 <td>#<?php echo $serial++; ?></td>
                                 <td><strong><?php echo htmlspecialchars($user['username']); ?></strong></td>
-                                <form action="backend/manage_user_action.php" method="POST">
-                                    <input type="hidden" name="user_id" value="<?php echo $user['user_id']; ?>">
-                                    <td>
-                                        <select name="role" class="status-select-custom">
-                                            <option value="student" <?php echo $user['role'] === 'student' ? 'selected' : ''; ?>>Student</option>
-                                            <option value="teacher" <?php echo $user['role'] === 'teacher' ? 'selected' : ''; ?>>Teacher</option>
-                                            <option value="admin" <?php echo $user['role'] === 'admin' ? 'selected' : ''; ?>>Admin</option>
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <input type="text" name="subject" value="<?php echo htmlspecialchars($user['subject'] ?? ''); ?>" placeholder="Subject" style="padding: 4px; border-radius: 4px; border: 1px solid #ccc;">
-                                    </td>
-                                    <td>
-                                        <select name="status" class="status-select-custom">
-                                            <option value="pending" <?php echo $user['status'] === 'pending' ? 'selected' : ''; ?>>Pending</option>
-                                            <option value="approved" <?php echo $user['status'] === 'approved' ? 'selected' : ''; ?>>Approved</option>
-                                            <option value="rejected" <?php echo $user['status'] === 'rejected' ? 'selected' : ''; ?>>Rejected</option>
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <button type="submit" name="action" value="update" class="btn-action btn-approve">Save</button>
-                                </form>
-
-                                    <?php if ($user['user_id'] != $_SESSION['user_id']): ?>
-                                        <form action="backend/manage_user_action.php" method="POST" style="display:inline;" onsubmit="return confirm('Delete this user?');">
-                                            <input type="hidden" name="user_id" value="<?php echo $user['user_id']; ?>">
-                                            <button type="submit" name="action" value="delete" class="btn-action btn-danger">Delete</button>
-                                        </form>
-                                    <?php endif; ?>
+                                <td>
+                                    <select name="role" form="save-<?php echo $user['user_id']; ?>" class="status-select-custom">
+                                        <option value="student" <?php echo $user['role'] === 'student' ? 'selected' : ''; ?>>Student</option>
+                                        <option value="teacher" <?php echo $user['role'] === 'teacher' ? 'selected' : ''; ?>>Teacher</option>
+                                        <option value="admin" <?php echo $user['role'] === 'admin' ? 'selected' : ''; ?>>Admin</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <input type="text" name="subject" form="save-<?php echo $user['user_id']; ?>" value="<?php echo htmlspecialchars($user['subject'] ?? ''); ?>" placeholder="Subject" style="padding: 4px; border-radius: 4px; border: 1px solid #ccc;">
+                                </td>
+                                <td>
+                                    <select name="status" form="save-<?php echo $user['user_id']; ?>" class="status-select-custom">
+                                        <option value="pending" <?php echo $user['status'] === 'pending' ? 'selected' : ''; ?>>Pending</option>
+                                        <option value="approved" <?php echo $user['status'] === 'approved' ? 'selected' : ''; ?>>Approved</option>
+                                        <option value="rejected" <?php echo $user['status'] === 'rejected' ? 'selected' : ''; ?>>Rejected</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <div class="action-stack compact">
+                                        <button type="submit" name="action" value="update" form="save-<?php echo $user['user_id']; ?>" class="btn-action btn-approve">Save</button>
+                                        <?php if ($user['user_id'] != $_SESSION['user_id']): ?>
+                                            <button type="submit" name="action" value="delete" form="delete-<?php echo $user['user_id']; ?>"
+                                                    onclick="return confirm('Delete this user?');" class="btn-action btn-danger">Delete</button>
+                                        <?php endif; ?>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endwhile; ?>
                     </tbody>
                 </table>
+                <?php $result->data_seek(0); while ($u = $result->fetch_assoc()): ?>
+                    <form id="save-<?php echo $u['user_id']; ?>" action="backend/manage_user_action.php" method="POST" class="manage-form-hidden">
+                        <input type="hidden" name="user_id" value="<?php echo $u['user_id']; ?>">
+                    </form>
+                    <?php if ($u['user_id'] != $_SESSION['user_id']): ?>
+                        <form id="delete-<?php echo $u['user_id']; ?>" action="backend/manage_user_action.php" method="POST" class="manage-form-hidden">
+                            <input type="hidden" name="user_id" value="<?php echo $u['user_id']; ?>">
+                        </form>
+                    <?php endif; ?>
+                <?php endwhile; ?>
             </div>
         </div>
     </div>

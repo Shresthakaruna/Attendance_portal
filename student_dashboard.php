@@ -74,7 +74,7 @@ $leave_stmt->close();
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Student Dashboard - Attendance Portal</title>
-  <link rel="stylesheet" href="css/style.css?v=7">
+  <link rel="stylesheet" href="css/style.css?v=13">
   
   <!-- Include Chart.js Library -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

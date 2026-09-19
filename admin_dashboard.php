@@ -11,6 +11,7 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role
 }
 
 // --- DATA RETRIEVAL (Prepared Statements) ---
+$today = date('Y-m-d');
 
 // 1. Overview Metrics (KPI Cards)
 $total_pending  = $conn->query("SELECT COUNT(*) AS count FROM users WHERE status = 'pending'")->fetch_assoc()['count'] ?? 0;
@@ -40,7 +41,7 @@ $leave_result = $leave_stmt->get_result();
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Dashboard | Smart Attendance Portal</title>
-  <link rel="stylesheet" href="css/style.css?v=7">
+  <link rel="stylesheet" href="css/style.css?v=13">
 </head>
 <body>
 
@@ -119,14 +120,16 @@ $leave_result = $leave_stmt->get_result();
                   <td><span class="badge-role"><?php echo ucfirst($row['role']); ?></span></td>
                   <td><?php echo !empty($row['subject']) ? htmlspecialchars($row['subject']) : '—'; ?></td>
                   <td class="text-right">
-                    <a href="backend/approve_user.php?id=<?php echo $row['user_id']; ?>&action=approve" class="btn-action btn-approve">
-                      Approve
-                    </a>
-                    <a href="backend/approve_user.php?id=<?php echo $row['user_id']; ?>&action=reject" 
-                       onclick="return confirm('Are you sure you want to reject this registration request?');" 
-                       class="btn-action btn-reject">
-                      Reject
-                    </a>
+                    <div class="action-stack">
+                      <a href="backend/approve_user.php?id=<?php echo $row['user_id']; ?>&action=approve" class="btn-action btn-approve">
+                        Approve
+                      </a>
+                      <a href="backend/approve_user.php?id=<?php echo $row['user_id']; ?>&action=reject" 
+                         onclick="return confirm('Are you sure you want to reject this registration request?');" 
+                         class="btn-action btn-reject">
+                        Reject
+                      </a>
+                    </div>
                   </td>
                 </tr>
               <?php endwhile; ?>
@@ -144,8 +147,13 @@ $leave_result = $leave_stmt->get_result();
     <section class="dashboard-card">
       <div class="card-header">
         <h3>Student Leave Applications</h3>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span class="count-badge"><?php echo $leave_result->num_rows; ?> Requests</span>
+          <button type="button" id="toggleLeaveTableBtn" class="btn-action btn-approve" style="cursor: pointer; border: none; padding: 6px 12px;" onclick="toggleLeaveTable()">Show Requests ▾</button>
+        </div>
       </div>
-      <div class="table-responsive">
+      <div id="leaveRequestsBody" style="display: none;">
+        <div class="table-responsive">
         <table class="decorative-table">
           <thead>
             <tr>
@@ -161,7 +169,7 @@ $leave_result = $leave_stmt->get_result();
             <?php if ($leave_result && $leave_result->num_rows > 0): ?>
               <?php while ($leave = $leave_result->fetch_assoc()): ?>
                 <tr>
-                  <td><strong>#<?php echo $leave['leave_id']; ?></strong></td>
+                  <td><strong>#<?php echo $leave['student_id']; ?></strong></td>
                   <td><strong><?php echo htmlspecialchars($leave['username']); ?></strong></td>
                   <td>
                     <?php echo date('M d', strtotime($leave['start_date'])); ?> - 
@@ -171,16 +179,28 @@ $leave_result = $leave_stmt->get_result();
                   <td>
                     <?php
                     $status = $leave['status'];
-                    $status_class = ($status === 'Approved') ? 'badge-present' : (($status === 'Rejected') ? 'badge-absent' : 'badge-late');
+                    $is_expired = ($leave['end_date'] < $today);
+
+                    if ($is_expired) {
+                        $display_status = 'Expired';
+                        $status_class = 'badge-expired';
+                    } else {
+                        $display_status = $status;
+                        $status_class = ($status === 'Approved') ? 'badge-present' : (($status === 'Rejected') ? 'badge-absent' : 'badge-late');
+                    }
                     ?>
-                    <span class="<?php echo $status_class; ?>"><?php echo htmlspecialchars($status); ?></span>
+                    <span class="<?php echo $status_class; ?>"><?php echo htmlspecialchars($display_status); ?></span>
                   </td>
                   <td class="text-right">
-                    <?php if ($leave['status'] === 'Pending'): ?>
-                      <a href="backend/manage_leave.php?id=<?php echo $leave['leave_id']; ?>&action=approve" class="btn-action btn-approve">Approve</a>
-                      <a href="backend/manage_leave.php?id=<?php echo $leave['leave_id']; ?>&action=reject" 
-                         onclick="return confirm('Reject this leave request?');" 
-                         class="btn-action btn-reject">Reject</a>
+                    <?php if ($leave['status'] === 'Pending' && !$is_expired): ?>
+                      <div class="action-stack">
+                        <a href="backend/manage_leave.php?id=<?php echo $leave['leave_id']; ?>&action=approve" class="btn-action btn-approve">Approve</a>
+                        <a href="backend/manage_leave.php?id=<?php echo $leave['leave_id']; ?>&action=reject" 
+                           onclick="return confirm('Reject this leave request?');" 
+                           class="btn-action btn-reject">Reject</a>
+                      </div>
+                    <?php elseif ($is_expired): ?>
+                      <span class="text-muted">Expired</span>
                     <?php else: ?>
                       <span class="text-muted">Processed</span>
                     <?php endif; ?>
@@ -194,6 +214,7 @@ $leave_result = $leave_stmt->get_result();
             <?php endif; ?>
           </tbody>
         </table>
+      </div>
       </div>
     </section>
 
@@ -232,6 +253,16 @@ $leave_result = $leave_stmt->get_result();
     </section>
 
   </div>
+
+  <script>
+    function toggleLeaveTable() {
+      const body = document.getElementById('leaveRequestsBody');
+      const btn = document.getElementById('toggleLeaveTableBtn');
+      const isHidden = body.style.display === 'none';
+      body.style.display = isHidden ? 'block' : 'none';
+      btn.textContent = isHidden ? 'Hide Requests ▴' : 'Show Requests ▾';
+    }
+  </script>
 
 </body>
 </html>
